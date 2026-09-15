@@ -70,14 +70,24 @@ export class ActivityEscrowClient {
   }
   async summary(escrowAddress: string) {
     const address = getAddress(escrowAddress);
-    const [organizer, recipient, contribution, capacity, fundingDeadline, activityStart, replacementCutoff, termsHash, state, placeCount] = await Promise.all([
-      this.client.readContract({ address, abi: escrowAbi, functionName: "organizer" }), this.client.readContract({ address, abi: escrowAbi, functionName: "recipient" }),
-      this.client.readContract({ address, abi: escrowAbi, functionName: "contribution" }), this.client.readContract({ address, abi: escrowAbi, functionName: "capacity" }),
-      this.client.readContract({ address, abi: escrowAbi, functionName: "fundingDeadline" }), this.client.readContract({ address, abi: escrowAbi, functionName: "activityStart" }),
-      this.client.readContract({ address, abi: escrowAbi, functionName: "replacementCutoff" }), this.client.readContract({ address, abi: escrowAbi, functionName: "termsHash" }),
-      this.client.readContract({ address, abi: escrowAbi, functionName: "state" }), this.client.readContract({ address, abi: escrowAbi, functionName: "placeCount" }),
-    ]);
-    return { address, organizer, recipient, contribution: formatUnits(contribution, 6), capacity: Number(capacity), fundingDeadline: Number(fundingDeadline), activityStart: Number(activityStart), replacementCutoff: Number(replacementCutoff), termsHash, state: stateNames[Number(state)], placeCount: Number(placeCount) };
+    // Monad Testnet limits this public RPC to 15 requests/second. The runner
+    // may reconcile several escrows at once, so avoid the burst from Promise.all.
+    const read = async (functionName: any) => {
+      const value = await this.client.readContract({ address, abi: escrowAbi, functionName });
+      await new Promise(resolve => setTimeout(resolve, 80));
+      return value;
+    };
+    const organizer = await read("organizer");
+    const recipient = await read("recipient");
+    const contribution = await read("contribution");
+    const capacity = await read("capacity");
+    const fundingDeadline = await read("fundingDeadline");
+    const activityStart = await read("activityStart");
+    const replacementCutoff = await read("replacementCutoff");
+    const termsHash = await read("termsHash");
+    const state = await read("state");
+    const placeCount = await read("placeCount");
+    return { address, organizer: organizer as string, recipient: recipient as string, contribution: formatUnits(contribution as bigint, 6), capacity: Number(capacity), fundingDeadline: Number(fundingDeadline), activityStart: Number(activityStart), replacementCutoff: Number(replacementCutoff), termsHash: termsHash as string, state: stateNames[Number(state)], placeCount: Number(placeCount) };
   }
   async transaction(hash: `0x${string}`) { return this.client.getTransaction({ hash }); }
   async waitReceipt(hash: `0x${string}`) { return this.client.waitForTransactionReceipt({ hash, timeout: 60000 }); }

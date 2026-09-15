@@ -25,7 +25,9 @@ const activities = process.env.SUPABASE_DATABASE_URL
     : new ActivityStore(join(dataDir, `${infrastructure.networkName}-activities.json`));
 
 const results = await runActivities(activities, chain, account.address, async call => {
-  const hash = await wallet.sendTransaction({ to: getAddress(call.contractAddress), data: call.callData });
+  // Monad Testnet can underestimate gas for lifecycle writes; retain a
+  // conservative relayer cap so permissionless settlement and expiry complete.
+  const hash = await wallet.sendTransaction({ to: getAddress(call.contractAddress), data: call.callData, gas: 300_000n });
   const receipt = await chain.waitReceipt(hash);
   if (receipt.status !== "success") throw new Error("Activity lifecycle transaction failed.");
   return hash;
