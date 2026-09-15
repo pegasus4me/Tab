@@ -26,6 +26,7 @@ import { ActivityStore } from "./services/activity-store.js";
 import { SupabaseActivityStore } from "./services/supabase-activity-store.js";
 import { PostgresActivityStore } from "./services/postgres-activity-store.js";
 import { ActivityEscrowClient } from "./services/chain/activity-escrow-client.js";
+import { WhatsAppService } from "./services/whatsapp-service.js";
 
 const app = express();
 const managedMembers = new ManagedMembers(new URL("../.data/members.json", import.meta.url).pathname);
@@ -48,6 +49,7 @@ const activities = process.env.SUPABASE_DATABASE_URL
     : new ActivityStore(join(dataDir, `${infrastructure.networkName}-activities.json`));
 const activityChain = new ActivityEscrowClient();
 const moonPay = new MoonPayService(infrastructure.moonPay);
+const whatsapp = new WhatsAppService({ accessToken: process.env.WHATSAPP_ACCESS_TOKEN, phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID, verifyToken: process.env.WHATSAPP_VERIFY_TOKEN, appSecret: process.env.WHATSAPP_APP_SECRET, apiVersion: process.env.WHATSAPP_API_VERSION });
 if (process.env.NODE_ENV === "production" && !process.env.SUPABASE_DATABASE_URL && (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY)) {
   throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for persistent PINs in production.");
 }
@@ -89,6 +91,17 @@ app.post("/webhooks/moonpay", express.raw({ type: "application/json", limit: "25
   else if (status === "failed") funding.update(intent.id, { status: "failed" });
   else funding.update(intent.id, { status: "payment_pending" });
   return res.json({ received: true });
+});
+app.get("/webhooks/whatsapp", (req, res) => {
+  const challenge = whatsapp.verifyWebhook(req.query["hub.mode"] as string | undefined, req.query["hub.verify_token"] as string | undefined, req.query["hub.challenge"] as string | undefined);
+  if (!challenge) return res.sendStatus(403);
+  res.type("text/plain").send(challenge);
+});
+app.post("/webhooks/whatsapp", express.raw({ type: "application/json", limit: "256kb" }), (req, res) => {
+  const body = Buffer.isBuffer(req.body) ? req.body : Buffer.from("");
+  if (!whatsapp.verifySignature(req.header("X-Hub-Signature-256"), body)) return res.sendStatus(401);
+  // Provider delivery status is intentionally non-financial: it never changes activity state.
+  res.sendStatus(200);
 });
 app.use(express.json());
 
@@ -268,6 +281,18 @@ app.get("/activities/shared/:shareCode", async (req, res, next) => { try {
   } = activity;
   const onchain = activity.escrowAddress ? await activityChain.summary(activity.escrowAddress) : null;
   res.set("Cache-Control", "no-store").json({ activity: onchain ? { ...publicActivity, confirmedCount: onchain.placeCount, status: onchain.state } : publicActivity, onchain });
+} catch (error) { next(error); } });
+
+app.get("/activities/:activityId/whatsapp/share", async (req, res, next) => { try {
+  const identity = await authenticate(req);
+  const activity = await activities.get(z.string().uuid().parse(req.params.activityId));
+  if (!activity || activity.organizerUserId !== identity.userId) return res.status(404).json({ error: "Activity not found." });
+  const appUrl = process.env.OURS_APP_URL ?? process.env.PWA_ORIGIN?.split(",")[0];
+  if (!appUrl) return res.status(503).json({ error: "Set OURS_APP_URL to create a WhatsApp share link." });
+  const joinUrl = new URL(`/?activity=${activity.shareCode}`, appUrl).toString();
+  const formatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" });
+  const text = `${activity.title} — ${formatter.format(new Date(activity.startsAt))}\n${activity.location}\n${activity.contribution} € par personne · réponds avant le ${formatter.format(new Date(activity.fundingDeadline))}\n${joinUrl}`;
+  res.set("Cache-Control", "no-store").json({ joinUrl, text, whatsappUrl: `https://wa.me/?text=${encodeURIComponent(text)}`, nativeDeliveryConfigured: whatsapp.configured });
 } catch (error) { next(error); } });
 
 app.get("/activities", async (req, res, next) => { try {
