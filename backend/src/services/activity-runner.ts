@@ -44,8 +44,8 @@ export async function runActivities(
       summary = await chain.summary(activity.escrowAddress);
       await store.syncChainState(activity.id, summary.placeCount, summary.state);
       results.push({ activityId: activity.id, action, hash, state: summary.state });
-    } catch {
-      results.push({ activityId: activity.id, error: "Unable to reconcile or advance activity." });
+    } catch (error) {
+      results.push({ activityId: activity.id, error: error instanceof Error ? error.message : "Unable to reconcile or advance activity." });
     }
   }
   return results;
