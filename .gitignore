@@ -1,0 +1,11 @@
+.DS_Store
+backend/.data/
+.env
+**/.env
+**/node_modules/
+contracts/artifacts/
+contracts/cache/
+contracts/coverage/
+ios/Pods/
+ios/DerivedData/
+*.xcuserstate

@@ -1,0 +1,13 @@
+.treasury-controls { margin: 20px 0; padding: 20px; background: #f6f8fc; border-radius: 18px; color: #20304f; }
+.treasury-controls label { display: block; margin: 12px 0; font-size: 14px; }
+.treasury-controls input { display: block; width: 100%; box-sizing: border-box; padding: 12px; margin-top: 6px; border: 1px solid #d8dfea; border-radius: 10px; }
+.treasury-controls article { border-top: 1px solid #d8dfea; padding: 14px 0; overflow-wrap: anywhere; }
+.treasury-controls button { cursor: pointer; }
+.cfo-plan-card { background: #f2f5fb; padding: 18px; border-radius: 16px; margin: 14px 0; overflow-wrap: anywhere; }
+.cfo-plan-card h3 { font-size: 16px; }
+.cfo-plan-card pre { white-space: pre-wrap; font-size: 12px; }
+.cfo-plan-card small { display: block; margin: 8px 0; }
+.live-chat-dialog { width: min(720px, 94vw); max-height: 90vh; overflow-y: auto; }
+.funding-frame { width: 100%; height: 430px; border: 0; }
+.available-to-allocate { display:block; margin-top:12px; color:rgba(255,255,255,.72); font-size:13px; }
+.available-to-allocate strong { display:inline; margin:0; color:#fff; font-size:inherit; font-weight:600; letter-spacing:0; }

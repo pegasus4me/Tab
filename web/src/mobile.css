@@ -1,0 +1,15 @@
+@media (max-width: 700px) {
+  .balance-section {
+    display: grid;
+    place-items: center;
+    padding: 28px 0 44px;
+    text-align: center;
+  }
+
+  .balance {
+    margin: 0;
+    font-size: clamp(52px, 15vw, 72px);
+    font-weight: 750;
+    letter-spacing: -4px;
+  }
+}

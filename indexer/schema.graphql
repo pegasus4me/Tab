@@ -1,0 +1,22 @@
+type IndexedActivity {
+  id: ID!
+  activityKey: String!
+  organizer: String!
+  status: String!
+  participantCount: BigInt!
+  recipient: String
+  totalAmount: BigInt!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+}
+
+type IndexedPlace {
+  id: ID!
+  activity: IndexedActivity!
+  placeId: BigInt!
+  owner: String!
+  amount: BigInt!
+  offerNonce: BigInt!
+  refunded: Boolean!
+  updatedAt: BigInt!
+}

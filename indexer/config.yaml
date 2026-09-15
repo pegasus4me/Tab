@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
+name: count-me-in
+description: Canonical activity and participant event index for Count Me In
+address_format: lowercase
+rollback_on_reorg: true
+contracts:
+  - name: ActivityEscrowFactory
+    events:
+      - event: "ActivityCreated(bytes32 indexed activityId,address indexed escrow,address indexed organizer)"
+  - name: ActivityEscrow
+    events:
+      - event: "Joined(uint256 indexed placeId,address indexed participant,uint256 amount)"
+      - event: "Ready(uint256 participantCount,uint256 totalAmount)"
+      - event: "Settled(address indexed recipient,uint256 amount)"
+      - event: "Expired()"
+      - event: "Cancelled()"
+      - event: "Refunded(uint256 indexed placeId,address indexed participant,uint256 amount)"
+      - event: "Replaced(uint256 indexed placeId,address indexed previousOwner,address indexed newOwner,uint256 amount)"
+      - event: "OfferInvalidated(uint256 indexed placeId,uint256 newNonce)"
+chains:
+  - id: 10143
+    start_block: 62580000
+    contracts:
+      - name: ActivityEscrowFactory
+        address: "0x5fF998765AC633C40AD904085Df5903244f70789"
+      - name: ActivityEscrow

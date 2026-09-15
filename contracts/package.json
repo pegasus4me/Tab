@@ -1,0 +1,17 @@
+{
+  "name": "tab-contracts",
+  "private": true,
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy:activity:testnet": "hardhat run scripts/deploy-activity.cjs --network monadTestnet",
+    "test": "hardhat test",
+    "test:coverage": "hardhat coverage"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.2.0",
+    "dotenv": "^16.4.7",
+    "hardhat": "^2.26.3",
+    "solidity-coverage": "^0.8.16"
+  }
+}

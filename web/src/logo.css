@@ -1,0 +1,2 @@
+.logo{display:inline-flex;width:96px;line-height:0}.logo img,.logo>img{display:block;width:100%;height:auto}.auth-page>.logo,.pin-page>.logo{align-self:center}.mobile-top{position:relative;justify-content:flex-end!important}.mobile-top img{position:absolute;left:50%;transform:translateX(-50%);display:block;width:76px;height:auto}
+.splash-screen{display:grid;place-items:center;min-height:100dvh;background:#2B2E97}.splash-screen img{width:min(56vw,190px);height:auto}

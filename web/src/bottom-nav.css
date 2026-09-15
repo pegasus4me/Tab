@@ -1,0 +1,1 @@
+@media (max-width:700px){.reference-nav{position:fixed;z-index:12;right:0;bottom:0;left:0;display:grid;grid-template-columns:repeat(4,1fr);min-height:74px;padding:10px 10px calc(env(safe-area-inset-bottom) + 10px);background:#fff}.reference-nav button{color:#2B2E97}}

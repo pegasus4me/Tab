@@ -1,0 +1,20 @@
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterEach, expect, it } from "vitest";
+import { FamilyStore } from "../family-store.js";
+import { PlanStore } from "../cfo/plan-store.js";
+const dirs: string[] = [];
+afterEach(() => { for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true }); });
+it("retains families and submitted operation hashes across process restarts", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ours-store-")); dirs.push(dir);
+  const families = new FamilyStore(join(dir, "families.json"));
+  families.create({ id: "family", name: "Test", createdAt: "today", parentAddresses: ["0xabc"] });
+  families.updateProfile("family", "Test", "Build a reserve");
+  expect(new FamilyStore(join(dir, "families.json")).list(["0xABC"])[0].focus).toBe("Build a reserve");
+  expect(new FamilyStore(join(dir, "families.json")).list(["0xdef"])).toEqual([]);
+  const plans = new PlanStore(join(dir, "plans.json"));
+  plans.create({ id: "plan", familyId: "family", requestedBy: "parent", message: "Allocate", explanation: "Pending", status: "submitted", transactionHash: `0x${"a".repeat(64)}`, createdAt: "today", policyIssues: [] });
+  expect(new PlanStore(join(dir, "plans.json")).get("family", "plan")?.status).toBe("submitted");
+  expect(plans.get("another-family", "plan")).toBeUndefined();
+});

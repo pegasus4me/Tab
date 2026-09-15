@@ -1,0 +1,21 @@
+@media (max-width: 700px) {
+  .vault-visual .stack i,
+  .vault-visual .stack-safe i,
+  .vault-visual .stack-safe i:nth-last-child(-n + 2) {
+    width: 126px;
+    height: 56px;
+    margin-top: -31px;
+    border-radius: 0;
+    background: url("/assets/ours-penny-transparent.png") center / contain no-repeat;
+    box-shadow: none;
+  }
+
+  .vault-visual .stack i:first-of-type {
+    margin-top: 0;
+  }
+
+  .vault-visual .stack-safe i,
+  .vault-visual .stack-safe i:nth-last-child(-n + 2) {
+    background-image: url("/assets/ours-gold-coin.png");
+  }
+}

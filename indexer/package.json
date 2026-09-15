@@ -1,0 +1,16 @@
+{
+  "name": "count-me-in-indexer",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "codegen": "envio codegen",
+    "dev": "envio dev",
+    "start": "envio start"
+  },
+  "dependencies": {
+    "envio": "3.10.0"
+  },
+  "devDependencies": {
+    "typescript": "5.8.2"
+  }
+}
