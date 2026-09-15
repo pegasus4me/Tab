@@ -5,6 +5,7 @@
     "compile": "hardhat compile",
     "deploy:activity:testnet": "hardhat run scripts/deploy-activity.cjs --network monadTestnet",
     "test": "hardhat test",
+    "test:e2e": "node scripts/e2e-activity.cjs",
     "test:coverage": "hardhat coverage"
   },
   "devDependencies": {
